@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mi Plan de Entrenamiento</title>
+<style>
+:root{--bg:#f7f4f0;--card:#fff;--ink:#292522;--muted:#756e68;--accent:#80698f;--soft:#eee8f2;--line:#e4ddd6;--ok:#e7f3ea}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:900px;margin:auto;padding:14px 12px 45px}.hero{padding:24px 18px;border-radius:24px;background:linear-gradient(135deg,#eee7f1,#f8f1ea);margin-bottom:14px}
+h1{font-size:28px;margin:0 0 5px}.hero p{margin:4px 0;color:var(--muted)}
+.tabs{display:flex;gap:7px;overflow:auto;position:sticky;top:0;background:var(--bg);padding:6px 0 12px;z-index:4}
+.tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 14px;font-weight:700;white-space:nowrap}.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.day{display:none}.day.active{display:block}.day-title{margin:8px 3px 14px}.day-title h2{margin:0 0 4px;font-size:22px}.day-title p{margin:0;color:var(--muted);font-size:14px}
+.exercise{background:var(--card);border:1px solid var(--line);border-radius:19px;padding:15px;margin:11px 0;transition:.15s}.exercise.done{background:var(--ok)}
+.exhead{display:flex;gap:10px;justify-content:space-between}.exname{margin:0;font-size:17px}.badge{background:var(--soft);color:var(--accent);border-radius:8px;padding:5px 8px;font-size:11px;font-weight:700;white-space:nowrap}
+.desc{font-size:13px;line-height:1.45;color:var(--muted);margin:7px 0 10px}
+img.demo{width:100%;max-height:210px;object-fit:cover;border-radius:13px;background:#eee;margin:3px 0 12px}
+table{width:100%;border-collapse:collapse;font-size:13px}th{color:var(--muted);font-weight:600;text-align:center;padding:5px}td{padding:4px;text-align:center}
+input[type=text],input[type=number]{width:100%;padding:9px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:14px}input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:17px 0}.btn{border:0;border-radius:11px;padding:11px 14px;font-weight:700;cursor:pointer}.save{background:var(--accent);color:#fff}.clear{background:#fff;border:1px solid var(--line)}
+.note{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;margin-top:18px;font-size:13px;line-height:1.5;color:var(--muted)}
+.progress{height:9px;background:#e5ded8;border-radius:99px;overflow:hidden;margin-top:12px}.bar{height:100%;width:0;background:var(--accent);transition:.2s}
+.small{font-size:12px;color:var(--muted);margin-top:7px}
+@media(max-width:520px){h1{font-size:25px}.exercise{padding:13px}.exname{font-size:16px}.badge{font-size:10px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="hero">
+<h1>💪 Mi plan de entrenamiento</h1>
+<p>5 días · sábado y domingo descanso</p>
+<p>Registra peso, repeticiones y series. Tus datos se guardan en este dispositivo.</p>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="small" id="pct">0% completado</div>
+</section>
+
+<nav class="tabs">
+<button class="tab active" onclick="day('lun',this)">Lunes</button>
+<button class="tab" onclick="day('mar',this)">Martes</button>
+<button class="tab" onclick="day('mie',this)">Miércoles</button>
+<button class="tab" onclick="day('jue',this)">Jueves</button>
+<button class="tab" onclick="day('vie',this)">Viernes</button>
+</nav>
+
+<div id="app"></div>
+
+<div class="note">
+<strong>📌 Progresión</strong><br>
+Los pesos son referencias iniciales. Si completas el rango alto de repeticiones con técnica sólida y todavía podrías hacer unas 2 repeticiones más, aumenta ligeramente el peso la próxima vez. No sacrifiques técnica por cargar más.
+</div>
+<div class="controls">
+<button class="btn save" onclick="save()">💾 Guardar progreso</button>
+<button class="btn clear" onclick="clearAll()">🗑️ Borrar todos los registros</button>
+</div>
+</div>
+
+<script>
+const days={
+lun:{title:"🍑 Lunes — Glúteo + cuádriceps",sub:"Principales 2–3 min · accesorios 60–90 s",ex:[
+["Hip Thrust con barra","4 × 8–10","40–50 kg","Empuja con los talones y aprieta el glúteo arriba durante 1 segundo. Evita hiperextender la espalda.","hip thrust exercise"],
+["Sentadilla en Smith","4 × 8–10","25–35 kg","Baja de forma controlada, mantén el tronco estable y las rodillas alineadas con los pies.","smith machine squat exercise"],
+["Prensa 45°","3 × 10–12","70–100 kg","Apoya toda la espalda, baja con control y empuja sin bloquear agresivamente las rodillas.","45 degree leg press exercise"],
+["Bulgarian Split Squat","3 × 8–10 por pierna","6–8 kg por mano","Mantén equilibrio, desciende controladamente y empuja con la pierna de trabajo. Prioriza profundidad y técnica.","bulgarian split squat dumbbells exercise"],
+["Extensión de cuádriceps","3 × 12–15","20–30 kg","Extiende la rodilla de forma controlada y aprieta el cuádriceps arriba sin dar impulso.","leg extension machine exercise"],
+["Abducción de cadera","3 × 15–20","30–40 kg","Abre las piernas con control y vuelve lentamente. Busca tensión en la zona lateral del glúteo.","hip abduction machine exercise"],
+["Gemelos","3 × 12–15","30–40 kg","Baja hasta sentir estiramiento y sube todo lo posible controlando el movimiento.","calf raise gym exercise"],
+["Dead bug","3 × 10 por lado","Peso corporal","Mantén la zona lumbar estable mientras extiendes brazo y pierna contrarios.","dead bug exercise"]]},
+mar:{title:"🪽 Martes — Espalda + bíceps + core",sub:"Controla el movimiento y evita balanceos.",ex:[
+["Jalón al pecho","4 × 8–12","30–35 kg","Lleva los codos hacia abajo, acerca la barra al pecho y evita impulsarte con el torso.","lat pulldown exercise"],
+["Remo sentado en polea","4 × 8–12","30–35 kg","Mantén pecho estable, lleva los codos atrás y controla el regreso.","seated cable row exercise"],
+["Remo unilateral con mancuerna","3 × 10 por lado","12–14 kg","Apoya una mano, mantén la espalda estable y lleva el codo hacia la cadera.","one arm dumbbell row exercise"],
+["Jalón con agarre neutro","3 × 10–12","25–30 kg","Tira con los codos hacia abajo y mantén el control durante todo el recorrido.","neutral grip lat pulldown exercise"],
+["Face Pull","3 × 12–15","10–15 kg","Lleva la cuerda hacia la cara separando las manos y mantén los hombros controlados.","face pull cable exercise"],
+["Curl de bíceps con mancuernas","3 × 10–12","6–8 kg por mano","Codos quietos junto al cuerpo; sube y baja sin balancearte.","dumbbell biceps curl exercise"],
+["Curl martillo","3 × 10–12","6–8 kg por mano","Palmas enfrentadas, codos estables y movimiento controlado.","hammer curl exercise"],
+["Crunch en polea","3 × 12–15","15–20 kg","Flexiona el tronco usando el abdomen, sin convertirlo en un tirón de brazos.","cable crunch exercise"],
+["Plancha","3 × 30–45 s","Peso corporal","Aprieta abdomen y glúteos y mantén una línea estable de cabeza a pies.","plank exercise"]]},
+mie:{title:"🍑 Miércoles — Glúteo + femoral",sub:"Prioridad: cadena posterior y técnica.",ex:[
+["Peso muerto rumano","4 × 8–10","30–40 kg","Lleva la cadera atrás manteniendo la espalda neutra; siente el estiramiento en femorales.","romanian deadlift exercise"],
+["Hip Thrust","3 × 10–12","40–50 kg","Pausa arriba y controla la bajada. Mantén el abdomen activo.","hip thrust exercise"],
+["Curl femoral","4 × 10–12","20–30 kg","Flexiona la rodilla de forma controlada y regresa lentamente.","seated leg curl machine exercise"],
+["Zancada hacia atrás","3 × 10 por pierna","8 kg por mano","Da un paso atrás, baja verticalmente y empuja con la pierna delantera.","reverse lunge dumbbells exercise"],
+["Extensión de cadera en polea","3 × 12–15 por pierna","7,5–12,5 kg","Lleva la pierna atrás desde la cadera sin arquear la espalda.","cable glute kickback exercise"],
+["Abducción","3 × 15–20","30–40 kg","Abre con control y evita usar impulso.","hip abduction machine exercise"],
+["Hiperextensión 45° enfocada en glúteo","3 × 12–15","Peso corporal","Redondeo mínimo del torso, cadera estable y contracción del glúteo al subir.","45 degree back extension glute exercise"],
+["Elevación de rodillas","3 × 10–15","Peso corporal","Eleva las rodillas usando el abdomen y evita balancearte.","hanging knee raise exercise"]]},
+jue:{title:"💪 Jueves — Pecho + hombros + tríceps",sub:"Control especialmente en elevaciones laterales.",ex:[
+["Press de pecho en máquina","4 × 8–12","20–30 kg","Pecho estable, empuja de forma controlada y no bloquees bruscamente los codos.","machine chest press exercise"],
+["Press inclinado con mancuernas","3 × 8–10","6–8 kg por mano","Mantén hombros estables y baja las mancuernas de forma controlada.","incline dumbbell press exercise"],
+["Press de hombros en máquina","3 × 8–12","15–25 kg","Empuja sobre la cabeza manteniendo el torso estable y sin arquear excesivamente la espalda.","machine shoulder press exercise"],
+["Elevaciones laterales","4 × 12–15","3–5 kg por mano","Eleva los brazos con control hasta aproximadamente la altura de los hombros, sin balancearte.","dumbbell lateral raise exercise"],
+["Pájaros / reverse fly","3 × 12–15","3–5 kg por mano","Abre los brazos usando la parte posterior del hombro y controla el regreso.","reverse fly dumbbell exercise"],
+["Tríceps en polea","3 × 10–12","15–20 kg","Mantén los codos cerca del cuerpo y extiende completamente sin impulso.","cable triceps pushdown exercise"],
+["Extensión de tríceps sobre cabeza","3 × 12–15","10–15 kg","Codos apuntando al frente; extiende y vuelve lentamente.","overhead cable triceps extension exercise"],
+["Face Pull","2 × 15","Peso moderado","Lleva la cuerda hacia la cara y controla la rotación de los hombros.","face pull cable exercise"],
+["Pallof press","3 × 10–12 por lado","Peso moderado","Resiste la rotación y mantén el torso completamente estable.","pallof press cable exercise"]]},
+vie:{title:"🔥 Viernes — Glúteo + pierna completa",sub:"Sesión pesada de pierna + cardio final.",ex:[
+["Hip Thrust","4 × 6–8","45–55 kg","Serie pesada: glúteos fuertes, pausa arriba y bajada controlada.","hip thrust exercise"],
+["Sentadilla Hack o Smith","3 × 8–10","25–35 kg","Baja controladamente y empuja con toda la planta del pie.","hack squat machine exercise"],
+["Peso muerto rumano","3 × 10","30–40 kg","Cadera atrás, espalda neutra y tensión constante en femorales.","romanian deadlift exercise"],
+["Prensa","3 × 12","70–100 kg","Controla la bajada y empuja de forma estable sin bloquear las rodillas.","leg press exercise"],
+["Curl femoral","3 × 12–15","20–30 kg","Flexiona la rodilla controlando el recorrido completo.","leg curl machine exercise"],
+["Extensión de cuádriceps","3 × 12–15","20–30 kg","Pausa breve arriba y regreso lento.","leg extension machine exercise"],
+["Abducción","3 × 15–20","30–40 kg","Abre y regresa lentamente, manteniendo tensión.","hip abduction machine exercise"],
+["Gemelos","3 × 15","Peso moderado","Recorrido amplio y controlado, sin rebotes.","calf raise gym exercise"],
+["Caminadora inclinada","15–20 min","Ritmo moderado","Mantén un ritmo sostenible; debe complementar el entrenamiento, no destruir tu recuperación.","incline treadmill walking exercise"]]}
+};
+
+let current="lun", totalChecks=0, checked=0;
+
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-")}
+function makeImage(query,name){
+return `https://source.unsplash.com/900x500/?${encodeURIComponent(query)}`;
+}
+function parseSets(target){
+let m=target.match(/^(\d+)/); return m?Number(m[1]):1;
+}
+function render(){
+const app=document.getElementById("app");app.innerHTML="";
+Object.entries(days).forEach(([id,d])=>{
+let sec=document.createElement("section");sec.id=id;sec.className="day"+(id===current?" active":"");
+sec.innerHTML=`<div class="day-title"><h2>${d.title}</h2><p>${d.sub}</p></div>`;
+d.ex.forEach((e,i)=>{
+let n=parseSets(e[1]); let ex=document.createElement("article");ex.className="exercise";ex.dataset.day=id;ex.dataset.i=i;
+let rows="";
+for(let s=1;s<=n;s++) rows+=`<tr><td>${s}</td><td><input type="text" data-k="${id}-${i}-${s}-w" placeholder="${e[2]}"></td><td><input type="number" data-k="${id}-${i}-${s}-r" placeholder="Reps"></td><td><input type="checkbox" data-k="${id}-${i}-${s}-c" onchange="check(this)"></td></tr>`;
+ex.innerHTML=`<div class="exhead"><h3 class="exname">${i+1}. ${e[0]}</h3><span class="badge">${e[1]}</span></div>
+<img class="demo" src="${makeImage(e[3],e[0])}" alt="Referencia de ${e[0]}" loading="lazy" onerror="this.style.display='none'">
+<div class="desc"><strong>Referencia:</strong> ${e[2]}<br>${e[3]}</div>
+<table><thead><tr><th>Serie</th><th>Peso</th><th>Reps</th><th>✓</th></tr></thead><tbody>${rows}</tbody></table>`;
+sec.appendChild(ex);
+});
+app.appendChild(sec);
+});
+load();
+updateProgress();
+}
+function day(id,btn){current=id;document.querySelectorAll(".day").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));btn.classList.add("active");scrollTo(0,0)}
+function check(el){el.closest(".exercise").classList.toggle("done",el.checked);save(false);updateProgress()}
+function save(show=true){document.querySelectorAll("[data-k]").forEach(el=>localStorage.setItem("gym-"+el.dataset.k,el.type==="checkbox"?String(el.checked):el.value));if(show)alert("¡Progreso guardado! 💪")}
+function load(){document.querySelectorAll("[data-k]").forEach(el=>{let v=localStorage.getItem("gym-"+el.dataset.k);if(v!==null){if(el.type==="checkbox"){el.checked=v==="true";if(el.checked)el.closest(".exercise").classList.add("done")}else el.value=v}})}
+function updateProgress(){let checks=[...document.querySelectorAll('input[type="checkbox"]')];let done=checks.filter(x=>x.checked).length;let pct=checks.length?Math.round(done/checks.length*100):0;document.getElementById("bar").style.width=pct+"%";document.getElementById("pct").textContent=pct+"% de series completadas"}
+function clearAll(){if(confirm("¿Borrar todos los pesos, repeticiones y marcas?")){Object.keys(localStorage).filter(k=>k.startsWith("gym-")).forEach(k=>localStorage.removeItem(k));location.reload()}}
+render();
+</script>
+</body>
+</html>
